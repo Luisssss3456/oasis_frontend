@@ -3,6 +3,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
+import 'package:flutter_map_location_marker/flutter_map_location_marker.dart';
 
 class MapPage extends StatefulWidget {
   const MapPage({super.key});
@@ -29,6 +30,7 @@ class _MapPageState extends State<MapPage> {
           subdomains: const ['mt0', 'mt1', 'mt2', 'mt3'],
           userAgentPackageName: 'com.example.oasis_frontend',
         ),
+        CurrentLocationLayer(),
         const RichAttributionWidget(
           attributions: [
             TextSourceAttribution(
