@@ -25,7 +25,7 @@ class _MapPageState extends State<MapPage> {
       children: [
         TileLayer(
           urlTemplate:
-              'https://{s}.google.com/vt/lyrs=m,h&x={x}&y={y}&z={z}&hl=ar-MA&gl=MA',
+              'https://{s}.google.com/vt/lyrs=m,h&x={x}&y={y}&z={z}&hl=es-PR&gl=PR',
           subdomains: const ['mt0', 'mt1', 'mt2', 'mt3'],
           userAgentPackageName: 'com.example.oasis_frontend',
         ),
