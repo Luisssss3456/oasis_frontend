@@ -10,3 +10,7 @@ After installing android studio, click on the app and go to more actions > Virtu
 When you install the Flutter Extension in VSCode, open the project and type ```> Flutter: Select Device``` in the VSCode search bar and choose an Android Device.
 
 After that, in the VSCode terminal, run ```flutter run```
+
+On an android emulator, click the three dots and click on Location.
+
+    From there, you can set a location for flutter retrieve as a current location.
