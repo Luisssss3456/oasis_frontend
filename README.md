@@ -13,4 +13,12 @@ After that, in the VSCode terminal, run ```flutter run```
 
 On an android emulator, click the three dots and click on Location.
 
-    From there, you can set a location for flutter retrieve as a current location.
+From there, you can set a location for flutter to retrieve as a current location.
+
+**TODO LIST (FOR NOW)**:
+1. ~~Add current location marker~~
+2. ~~Paint mockup paths~~
+3. ~~Update current location marker overtime~~
+4. Add a feature to create path with either search bar or tap on the screen
+5. Add zoom buttons
+6. Add a path algorithm from current location to destiny location.
