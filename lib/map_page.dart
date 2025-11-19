@@ -24,6 +24,8 @@ class _MapPageState extends State<MapPage> {
   final MapController mapController = MapController();
 
   Position? _currentPosition;
+
+
   StreamSubscription<Position>? _positionStream;
 
   @override
@@ -60,8 +62,7 @@ class _MapPageState extends State<MapPage> {
     return true;
   }
 
-  // This only retrieves the initial possition
-  // So far it is only called on startup and does not update
+
   Future<void> _getCurrentPosition() async {
     final hasPermission = await _handleLocationPermission();
     if (!hasPermission) return;
@@ -71,8 +72,6 @@ class _MapPageState extends State<MapPage> {
       distanceFilter: 100,
     );
 
-
-
     await Geolocator.getCurrentPosition(
       locationSettings: locationSettings)
       .then((Position position) {
@@ -81,6 +80,7 @@ class _MapPageState extends State<MapPage> {
         debugPrint(e);
       });
 
+      // This is where the position updates with the device location
       _positionStream = Geolocator.getPositionStream(
         locationSettings: locationSettings,
       ).listen((Position? position) {
@@ -100,6 +100,7 @@ class _MapPageState extends State<MapPage> {
   @override
   Widget build(BuildContext context) {
 
+    // Application first loads to retrieve current location
     if(_currentPosition == null){
       return const Center(child: CircularProgressIndicator());
     }
@@ -124,6 +125,8 @@ class _MapPageState extends State<MapPage> {
         CurrentLocationLayer(),
         PolylineLayer(polylines: 
         [
+          // These are polyline constants I am trying out
+          // Will be removed later
           Polyline(points: [
             LatLng(_currentPosition!.latitude, _currentPosition!.longitude), // Example 1
             LatLng(_currentPosition!.latitude + .02, _currentPosition!.longitude + .03),

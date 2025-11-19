@@ -19,6 +19,5 @@ From there, you can set a location for flutter to retrieve as a current location
 1. ~~Add current location marker~~
 2. ~~Paint mockup paths~~
 3. ~~Update current location marker overtime~~
-4. Add a feature to create path with either search bar or tap on the screen
-5. Add zoom buttons
-6. Add a path algorithm from current location to destiny location.
+4. Add zoom buttons
+5. Add a feature to create path with either search bar or tap on the screen
