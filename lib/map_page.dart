@@ -7,6 +7,7 @@
 
 import 'dart:async';
 
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
@@ -90,6 +91,18 @@ class _MapPageState extends State<MapPage> {
       });
   }
 
+  Future<void> _centerCurrentLocation() async {
+    if(_currentPosition != null){
+        mapController.move(LatLng(_currentPosition!.latitude, _currentPosition!.longitude), 13);
+    }
+    else {
+        CupertinoAlertDialog(
+          title: Text("Error"),
+          content: Text("Cannot find user location")
+        );
+    }
+  }
+
   @override
   void dispose() {
     // TODO: implement dispose
@@ -123,6 +136,18 @@ class _MapPageState extends State<MapPage> {
           userAgentPackageName: 'com.example.oasis_frontend',
         ),
         CurrentLocationLayer(),
+        Positioned(
+          left: 16,
+          bottom: 16,
+          child: TextButton(
+            style: TextButton.styleFrom(
+              foregroundColor: Colors.white,
+              backgroundColor: Colors.black,
+            ),
+            onPressed: _centerCurrentLocation, 
+            child: Text('Center')
+            ),
+        ),
         PolylineLayer(polylines: 
         [
           // These are polyline constants I am trying out
