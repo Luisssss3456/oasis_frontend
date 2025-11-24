@@ -29,6 +29,9 @@ class _MapPageState extends State<MapPage> {
 
   StreamSubscription<Position>? _positionStream;
 
+  final Set<Marker> _markers = {};
+  List<LatLng> _linePoints = [];
+
   @override
   void initState() {
     // TODO: implement initState
@@ -110,6 +113,24 @@ class _MapPageState extends State<MapPage> {
     super.dispose();
   }
 
+  void _addMarkerPressed(LatLng pos) {
+    setState((){
+      _markers.add(
+        Marker(
+          point: pos, 
+          child: FlutterLogo(),
+        ),
+      );
+    });
+  }
+
+  void _clearMarker() {
+    setState(() {
+      _linePoints.clear();
+      _markers.clear();
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
 
@@ -127,7 +148,15 @@ class _MapPageState extends State<MapPage> {
           _currentPosition!.longitude
           ),
         initialZoom: 13,
+        onTap: (tapPosition, pos) {
+            _markers.clear();
+            _addMarkerPressed(pos);
+            _linePoints = [
+              LatLng(_currentPosition!.latitude, _currentPosition!.longitude),
+              pos];
+        },
       ),
+
       children: [
         TileLayer(
           urlTemplate:
@@ -135,6 +164,7 @@ class _MapPageState extends State<MapPage> {
           subdomains: const ['mt0', 'mt1', 'mt2', 'mt3'],
           userAgentPackageName: 'com.example.oasis_frontend',
         ),
+        MarkerLayer(markers: _markers.toList()),
         CurrentLocationLayer(),
         Padding(
           padding: const EdgeInsets.only(top: 40),
@@ -181,19 +211,35 @@ class _MapPageState extends State<MapPage> {
             child: Text('Center')
             ),
         ),
-        PolylineLayer(polylines: 
-        [
+        Positioned(
+          left: 16,
+          bottom: 66,
+          child: TextButton(
+            style: TextButton.styleFrom(
+              foregroundColor: Colors.white,
+              backgroundColor: Colors.black,
+            ),
+            onPressed: _clearMarker, 
+            child: Text('Clear')
+            ),
+        ),
+        // SHOULD INVESTIGATE FURTHER
+        if (_linePoints.isNotEmpty)
+          PolylineLayer(polylines: 
+          [
           // These are polyline constants I am trying out
           // Will be removed later
-          Polyline(points: [
-            LatLng(_currentPosition!.latitude, _currentPosition!.longitude), // Example 1
-            LatLng(_currentPosition!.latitude + .02, _currentPosition!.longitude + .03),
-            LatLng(_currentPosition!.latitude - .03, _currentPosition!.longitude + .05),
-          ],
-          color: const Color.fromARGB(255, 1, 132, 255),
-          strokeWidth: 6,
-          ),
-        ]
+          // Polyline(points: [
+          //   LatLng(_currentPosition!.latitude, _currentPosition!.longitude), // Example 1
+          //   LatLng(_currentPosition!.latitude + .02, _currentPosition!.longitude + .03),
+          //   LatLng(_currentPosition!.latitude - .03, _currentPosition!.longitude + .05),
+          // ],
+            Polyline(
+              points: _linePoints,
+              color: const Color.fromARGB(255, 1, 132, 255),
+              strokeWidth: 6,
+            ),
+          ]
         ),
         const RichAttributionWidget(
           attributions: [
