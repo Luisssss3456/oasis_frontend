@@ -4,6 +4,9 @@
 // https://fernandoptr.medium.com/how-to-get-users-current-location-address-in-flutter-geolocator-geocoding-be563ad6f66a#14f8
 // https://api.flutter.dev/flutter/material/CircularProgressIndicator-class.html
 // https://stackoverflow.com/questions/75177492/how-to-automatically-update-gps-coordinate-values-in-flutter-using-geolocator-pa
+// https://stackoverflow.com/questions/60600699/how-to-remove-a-specific-marker-from-google-maps-in-flutter
+// https://docs.fleaflet.dev/layers/polyline-layer
+// https://docs.fleaflet.dev/layers/marker-layer
 
 import 'dart:async';
 
@@ -124,6 +127,13 @@ class _MapPageState extends State<MapPage> {
     });
   }
 
+  void _drawLine(LatLng pos) {
+    _linePoints = [
+      LatLng(_currentPosition!.latitude, _currentPosition!.longitude), 
+      pos
+      ];
+  }
+
   void _clearMarker() {
     setState(() {
       _linePoints.clear();
@@ -151,9 +161,10 @@ class _MapPageState extends State<MapPage> {
         onTap: (tapPosition, pos) {
             _markers.clear();
             _addMarkerPressed(pos);
-            _linePoints = [
-              LatLng(_currentPosition!.latitude, _currentPosition!.longitude),
-              pos];
+            // _linePoints = [
+            //   LatLng(_currentPosition!.latitude, _currentPosition!.longitude),
+            //   pos];
+            _drawLine(pos);
         },
       ),
 
@@ -227,13 +238,6 @@ class _MapPageState extends State<MapPage> {
         if (_linePoints.isNotEmpty)
           PolylineLayer(polylines: 
           [
-          // These are polyline constants I am trying out
-          // Will be removed later
-          // Polyline(points: [
-          //   LatLng(_currentPosition!.latitude, _currentPosition!.longitude), // Example 1
-          //   LatLng(_currentPosition!.latitude + .02, _currentPosition!.longitude + .03),
-          //   LatLng(_currentPosition!.latitude - .03, _currentPosition!.longitude + .05),
-          // ],
             Polyline(
               points: _linePoints,
               color: const Color.fromARGB(255, 1, 132, 255),
