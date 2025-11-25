@@ -35,6 +35,8 @@ class _MapPageState extends State<MapPage> {
   final Set<Marker> _markers = {};
   List<LatLng> _linePoints = [];
 
+  bool _canShowClear = false;
+
   @override
   void initState() {
     // TODO: implement initState
@@ -124,6 +126,13 @@ class _MapPageState extends State<MapPage> {
           child: FlutterLogo(),
         ),
       );
+      _canShowClear = true;
+    });
+  }
+
+  void _showHideClear() {
+    setState (() {
+      _canShowClear = !_canShowClear;
     });
   }
 
@@ -138,6 +147,7 @@ class _MapPageState extends State<MapPage> {
     setState(() {
       _linePoints.clear();
       _markers.clear();
+      _canShowClear = false;
     });
   }
 
@@ -222,18 +232,20 @@ class _MapPageState extends State<MapPage> {
             child: Text('Center')
             ),
         ),
-        Positioned(
-          left: 16,
-          bottom: 66,
-          child: TextButton(
-            style: TextButton.styleFrom(
-              foregroundColor: Colors.white,
-              backgroundColor: Colors.black,
+        if (_canShowClear)
+          Positioned(
+            left: 16,
+            bottom: 66,
+            child: 
+            TextButton(
+              style: TextButton.styleFrom(
+                foregroundColor: Colors.white,
+                backgroundColor: Colors.black,
+              ),
+              onPressed: _clearMarker, 
+              child: Text('Clear')
             ),
-            onPressed: _clearMarker, 
-            child: Text('Clear')
-            ),
-        ),
+          ),
         // SHOULD INVESTIGATE FURTHER
         if (_linePoints.isNotEmpty)
           PolylineLayer(polylines: 
