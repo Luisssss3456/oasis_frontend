@@ -130,12 +130,6 @@ class _MapPageState extends State<MapPage> {
     });
   }
 
-  void _showHideClear() {
-    setState (() {
-      _canShowClear = !_canShowClear;
-    });
-  }
-
   void _drawLine(LatLng pos) {
     _linePoints = [
       LatLng(_currentPosition!.latitude, _currentPosition!.longitude), 
