@@ -17,6 +17,8 @@ import 'package:latlong2/latlong.dart';
 import 'package:flutter_map_location_marker/flutter_map_location_marker.dart';
 import 'package:geolocator/geolocator.dart';
 
+import 'package:oasis_frontend/request.dart';
+
 class MapPage extends StatefulWidget {
   const MapPage({super.key});
 
@@ -130,11 +132,13 @@ class _MapPageState extends State<MapPage> {
     });
   }
 
-  void _drawLine(LatLng pos) {
-    _linePoints = [
-      LatLng(_currentPosition!.latitude, _currentPosition!.longitude), 
-      pos
-      ];
+  Future<void> _drawLine(LatLng pos) async {
+    // _linePoints = [
+    //   LatLng(_currentPosition!.latitude, _currentPosition!.longitude), 
+    //   pos
+    //   ];
+
+    _linePoints = await fetchPath();
   }
 
   void _clearMarker() {

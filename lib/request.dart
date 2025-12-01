@@ -3,11 +3,11 @@
 // https://stackoverflow.com/questions/50244416/how-to-pass-basic-auth-credentials-in-api-call-for-a-flutter-mobile-application
 // https://docs.flutter.dev/cookbook/networking/send-data
 
-
 import 'package:http/http.dart' as http;
 import 'dart:convert';
+import 'package:latlong2/latlong.dart';
 
-Future<void> fetchPath() async {
+Future<List<LatLng>> fetchPath() async {
     final url  = Uri.parse("http://127.0.0.1:8000/routing/");
     //final response = await http.get(url);
 
@@ -36,8 +36,18 @@ Future<void> fetchPath() async {
 
     if (response.statusCode == 200) {
       final responseData = json.decode(response.body);
-      return responseData;
+
+      final coordinates = responseData["route"]["points"]["coordinates"];
+      
+      List<LatLng> polyline = coordinates.map<LatLng>((pair) {
+        double lng = pair[0];
+        double lat = pair[1];
+        return LatLng(lat, lng);
+      }).toList();
+
+      return polyline;
     } else {
       print("Error: ${response.statusCode}");
+      return [];
     }
 }
