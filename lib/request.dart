@@ -8,9 +8,8 @@ import 'dart:convert';
 import 'package:latlong2/latlong.dart';
 
 Future<List<LatLng>> fetchPath() async {
-    final url  = Uri.parse("http://127.0.0.1:8000/routing/");
-    //final response = await http.get(url);
-
+    final url  = Uri.parse("http://10.0.2.2:8000/routing/");
+    
     String username = 'your-user';
     String password = 'your-password';
     String basicAuth = 
