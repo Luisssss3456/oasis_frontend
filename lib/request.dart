@@ -7,13 +7,16 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:latlong2/latlong.dart';
 
-Future<List<LatLng>> fetchPath() async {
-    final url  = Uri.parse("http://10.0.2.2:8000/routing/");
+String _retrieveCreds() {
+  String username = '';
+  String password = '';
+  return 'Basic ' + base64.encode(utf8.encode('$username:$password'));
+}
+
+Future<List<LatLng>> fetchPath(LatLng currLoc, LatLng destination) async {
+    final url  = Uri.parse("");
     
-    String username = 'your-user';
-    String password = 'your-password';
-    String basicAuth = 
-    'Basic ' + base64.encode(utf8.encode('$username:$password'));
+    final basicAuth = _retrieveCreds();
 
     final response = await http.post(
       url,
@@ -23,12 +26,12 @@ Future<List<LatLng>> fetchPath() async {
       },
       body: jsonEncode({
         "origin": {
-          "lat": 18.404520310646078,
-          "lng": -66.05455910070414
+          "lat": currLoc.latitude,
+          "lng": currLoc.longitude
           },
         "destination": {
-          "lat": 18.39823227684525,
-          "lng": -66.04749513648974
+          "lat": destination.latitude,
+          "lng": destination.longitude
         }})
       );
 

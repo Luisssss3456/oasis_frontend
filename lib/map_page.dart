@@ -133,12 +133,7 @@ class _MapPageState extends State<MapPage> {
   }
 
   Future<void> _drawLine(LatLng pos) async {
-    // _linePoints = [
-    //   LatLng(_currentPosition!.latitude, _currentPosition!.longitude), 
-    //   pos
-    //   ];
-
-    _linePoints = await fetchPath();
+    _linePoints = await fetchPath(LatLng(_currentPosition!.latitude, _currentPosition!.longitude), pos);
   }
 
   void _clearMarker() {
