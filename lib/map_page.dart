@@ -38,6 +38,7 @@ class _MapPageState extends State<MapPage> {
 
   final Set<Marker> _markers = {};
   List<LatLng> _linePoints = [];
+  bool _isLoading = false;
 
   bool _canShowClear = false;
 
@@ -78,6 +79,11 @@ class _MapPageState extends State<MapPage> {
 
 
   Future<void> _getCurrentPosition() async {
+
+    setState(() {
+      _isLoading = true;
+    });
+
     final hasPermission = await _handleLocationPermission();
     if (!hasPermission) return;
     
@@ -101,6 +107,10 @@ class _MapPageState extends State<MapPage> {
         setState(() {
           _currentPosition = position;
         });
+      });
+
+      setState(() {
+        _isLoading = false;
       });
   }
 
@@ -140,7 +150,18 @@ class _MapPageState extends State<MapPage> {
   }
 
   Future<void> _drawLine(LatLng pos) async {
+
+    setState(() {
+      _isLoading = true;
+    });
+
+    _linePoints.clear();
     _linePoints = await fetchPath(LatLng(_currentPosition!.latitude, _currentPosition!.longitude), pos);
+  
+    setState(() {
+      _isLoading = false;
+    });
+  
   }
 
   void _clearMarker() {
@@ -154,8 +175,12 @@ class _MapPageState extends State<MapPage> {
   @override
   Widget build(BuildContext context) {
 
+    if(_currentPosition == null) {
+      _isLoading = true;
+    }
+
     // Application first loads to retrieve current location
-    if(_currentPosition == null){
+    if(_isLoading){
       return const Center(child: CircularProgressIndicator());
     }
 
