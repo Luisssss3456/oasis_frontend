@@ -31,6 +31,8 @@ class _MapPageState extends State<MapPage> {
 
   Position? _currentPosition;
 
+  List<Marker>? _pois;
+
 
   StreamSubscription<Position>? _positionStream;
 
@@ -44,6 +46,7 @@ class _MapPageState extends State<MapPage> {
     // TODO: implement initState
     super.initState();
     _getCurrentPosition();
+    _getPOIs();
   }
 
   Future<bool> _handleLocationPermission() async {
@@ -113,6 +116,10 @@ class _MapPageState extends State<MapPage> {
     }
   }
 
+  Future<void> _getPOIs() async {
+    _pois = await fetchPOIs();
+  } 
+
   @override
   void dispose() {
     // TODO: implement dispose
@@ -180,6 +187,7 @@ class _MapPageState extends State<MapPage> {
         ),
         MarkerLayer(markers: _markers.toList()),
         CurrentLocationLayer(),
+        MarkerLayer(markers: _pois!),
         Padding(
           padding: const EdgeInsets.only(top: 40),
           child: SearchAnchor(

@@ -3,9 +3,11 @@
 // https://stackoverflow.com/questions/50244416/how-to-pass-basic-auth-credentials-in-api-call-for-a-flutter-mobile-application
 // https://docs.flutter.dev/cookbook/networking/send-data
 
+import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:latlong2/latlong.dart';
+import 'package:flutter_map/flutter_map.dart';
 
 String _retrieveCreds() {
   String username = '';
@@ -52,4 +54,22 @@ Future<List<LatLng>> fetchPath(LatLng currLoc, LatLng destination) async {
       print("Error: ${response.statusCode}");
       return [];
     }
+}
+
+Future<List<Marker>> fetchPOIs() async {
+  List<Marker> pointsOfInterest = [
+    Marker(
+      point: LatLng(18.39823227684525, -66.04749513648974),
+      width: 80,
+      height: 80,
+      child: CircleAvatar(
+        backgroundColor: Colors.red,
+        child: CircleAvatar (
+          radius: 35.0
+        ),
+      ),
+    ),
+  ];
+
+  return pointsOfInterest;
 }
