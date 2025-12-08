@@ -31,7 +31,7 @@ class _MapPageState extends State<MapPage> {
 
   Position? _currentPosition;
 
-  List<Marker>? _pois;
+  List<Marker> _pois = [];
 
 
   StreamSubscription<Position>? _positionStream;
@@ -127,7 +127,15 @@ class _MapPageState extends State<MapPage> {
   }
 
   Future<void> _getPOIs() async {
+    setState(() {
+      _isLoading = true;
+    });
+
     _pois = await fetchPOIs();
+
+    setState(() {
+      _isLoading = false;
+    });
   } 
 
   @override
@@ -175,11 +183,10 @@ class _MapPageState extends State<MapPage> {
   @override
   Widget build(BuildContext context) {
 
-    if(_currentPosition == null) {
-      _isLoading = true;
+    if(_currentPosition == null || _pois.isEmpty) {
+      return const Center(child: CircularProgressIndicator());
     }
 
-    // Application first loads to retrieve current location
     if(_isLoading){
       return const Center(child: CircularProgressIndicator());
     }

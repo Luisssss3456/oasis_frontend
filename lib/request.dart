@@ -9,14 +9,16 @@ import 'dart:convert';
 import 'package:latlong2/latlong.dart';
 import 'package:flutter_map/flutter_map.dart';
 
+import 'auth/secrets.dart';
+
 String _retrieveCreds() {
-  String username = '';
-  String password = '';
+  String username = secretUser;
+  String password = secretPassword;
   return 'Basic ' + base64.encode(utf8.encode('$username:$password'));
 }
 
 Future<List<LatLng>> fetchPath(LatLng currLoc, LatLng destination) async {
-    final url  = Uri.parse("");
+    final url  = Uri.parse(urlRouting);
     
     final basicAuth = _retrieveCreds();
 
@@ -57,19 +59,69 @@ Future<List<LatLng>> fetchPath(LatLng currLoc, LatLng destination) async {
 }
 
 Future<List<Marker>> fetchPOIs() async {
-  List<Marker> pointsOfInterest = [
-    Marker(
-      point: LatLng(18.39823227684525, -66.04749513648974),
-      width: 80,
-      height: 80,
-      child: CircleAvatar(
-        backgroundColor: Colors.red,
-        child: CircleAvatar (
-          radius: 35.0
-        ),
-      ),
-    ),
-  ];
 
-  return pointsOfInterest;
+  List<Marker> pointsOfInterest = [];
+
+  final url = Uri.parse(urlPOIs);
+
+  final basicAuth = _retrieveCreds();
+
+  final response = await http.get(
+
+      url,
+      headers: {
+        'Content-Type': "application/json",
+        'Authorization': basicAuth
+      });
+
+    if (response.statusCode == 200) {
+      final responseData = json.decode(response.body);
+
+      final features = responseData['features'] as List;
+
+      for (var feature in features) {
+        //String name = feature["properties"]["name"];
+        double lat = feature["geometry"]["coordinates"][0];
+        double long = feature["geometry"]["coordinates"][1];
+
+        final IconData markerIcon;
+        final MaterialColor markerColor;
+
+        switch (feature["properties"]["category"]) {
+          case "agua-potable":
+            markerIcon = Icons.water_drop;
+            markerColor = Colors.blue;
+            break;
+          
+          case "refugio-climatico":
+            markerIcon = Icons.sunny;
+            markerColor = Colors.yellow;
+            break;
+          
+          default:
+            markerIcon = Icons.local_hospital;
+            markerColor = Colors.red;
+            break;
+        }
+
+        final poi = Marker(
+          point: LatLng(lat, long),
+          width: 40,
+          height: 40,
+          child: CircleAvatar(
+            backgroundColor: Colors.white,
+            child: CircleAvatar(
+              radius: 35.0,
+              backgroundColor: markerColor,
+              child: 
+                Icon(markerIcon, color: Colors.white),
+            ),
+          )
+        );
+        
+        pointsOfInterest.add(poi);
+      }
+    }
+    
+    return pointsOfInterest;
 }
