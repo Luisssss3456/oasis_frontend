@@ -16,8 +16,12 @@ import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:flutter_map_location_marker/flutter_map_location_marker.dart';
 import 'package:geolocator/geolocator.dart';
+import 'package:flutter/material.dart';
+import 'ui/route.dart';
+import 'ui/search.dart';
+import "ui/bottom_action_bar.dart";
+import "services/api.dart";
 
-import 'package:oasis_frontend/request.dart';
 
 class MapPage extends StatefulWidget {
   const MapPage({super.key});
@@ -30,16 +34,16 @@ class _MapPageState extends State<MapPage> {
   final MapController mapController = MapController();
 
   Position? _currentPosition;
+  StreamSubscription<Position>? _positionStream;
+  List<LatLng> _route = [];
+
 
   List<Marker> _pois = [];
 
 
-  StreamSubscription<Position>? _positionStream;
+  final Set<Marker> _destination = {};
 
-  final Set<Marker> _markers = {};
-  List<LatLng> _linePoints = [];
   bool _isLoading = false;
-
   bool _canShowClear = false;
 
   @override
@@ -50,6 +54,7 @@ class _MapPageState extends State<MapPage> {
     _getPOIs();
   }
 
+// Location permitions
   Future<bool> _handleLocationPermission() async {
     bool serviceEnabled;
     LocationPermission permission;
@@ -116,7 +121,7 @@ class _MapPageState extends State<MapPage> {
 
   Future<void> _centerCurrentLocation() async {
     if(_currentPosition != null){
-        mapController.move(LatLng(_currentPosition!.latitude, _currentPosition!.longitude), 13);
+        mapController.move(LatLng(_currentPosition!.latitude, _currentPosition!.longitude), 18);
     }
     else {
         CupertinoAlertDialog(
@@ -131,7 +136,53 @@ class _MapPageState extends State<MapPage> {
       _isLoading = true;
     });
 
-    _pois = await fetchPOIs();
+    List<Marker> pointsOfInterest = [];
+
+    final responseData = await fetchPOIs();
+    final features = responseData['features'] as List;
+    for (var feature in features) {
+      //String name = feature["properties"]["name"];
+      double lat = feature["geometry"]["coordinates"][0];
+      double long = feature["geometry"]["coordinates"][1];
+
+      final IconData markerIcon;
+      final MaterialColor markerColor;
+
+      switch (feature["properties"]["category"]) {
+        case "agua-potable":
+          markerIcon = Icons.water_drop;
+          markerColor = Colors.blue;
+          break;
+        
+        case "refugio-climatico":
+          markerIcon = Icons.sunny;
+          markerColor = Colors.yellow;
+          break;
+        
+        default:
+          markerIcon = Icons.local_hospital;
+          markerColor = Colors.red;
+          break;
+      }
+
+      final poi = Marker(
+        point: LatLng(lat, long),
+        width: 40,
+        height: 40,
+        child: CircleAvatar(
+          backgroundColor: Colors.white,
+          child: CircleAvatar(
+            radius: 35.0,
+            backgroundColor: markerColor,
+            child: 
+              Icon(markerIcon, color: Colors.white),
+          ),
+        )
+      );
+      
+      pointsOfInterest.add(poi);
+    }
+    _pois = pointsOfInterest;
 
     setState(() {
       _isLoading = false;
@@ -145,12 +196,15 @@ class _MapPageState extends State<MapPage> {
     super.dispose();
   }
 
-  void _addMarkerPressed(LatLng pos) {
+  void _setDestination(LatLng pos) {
     setState((){
-      _markers.add(
+      _destination.add(
         Marker(
           point: pos, 
-          child: FlutterLogo(),
+          child: Icon(
+            IconData(0xe3ac, fontFamily: 'MaterialIcons'), size: 40, color: Color.fromARGB(255,255,99,71),
+            shadows: [Shadow(color: Colors.black, blurRadius: 15.0)]
+            ),
         ),
       );
       _canShowClear = true;
@@ -163,19 +217,27 @@ class _MapPageState extends State<MapPage> {
       _isLoading = true;
     });
 
-    _linePoints.clear();
-    _linePoints = await fetchPath(LatLng(_currentPosition!.latitude, _currentPosition!.longitude), pos);
-  
+    _route.clear();
+    final responseData = await fetchRoute(LatLng(_currentPosition!.latitude, _currentPosition!.longitude), pos);
+    final coordinates = responseData["route"]["points"]["coordinates"];     
+
+    List<LatLng> polyline = coordinates.map<LatLng>((pair) {
+      double lng = pair[0];
+      double lat = pair[1];
+      return LatLng(lat, lng);
+    }).toList();
+
+    _route = polyline;
+
     setState(() {
       _isLoading = false;
     });
-  
   }
 
   void _clearMarker() {
     setState(() {
-      _linePoints.clear();
-      _markers.clear();
+      _route.clear();
+      _destination.clear();
       _canShowClear = false;
     });
   }
@@ -199,13 +261,10 @@ class _MapPageState extends State<MapPage> {
           _currentPosition!.latitude, 
           _currentPosition!.longitude
           ),
-        initialZoom: 13,
+        initialZoom: 15,
         onTap: (tapPosition, pos) {
-            _markers.clear();
-            _addMarkerPressed(pos);
-            // _linePoints = [
-            //   LatLng(_currentPosition!.latitude, _currentPosition!.longitude),
-            //   pos];
+            _destination.clear();
+            _setDestination(pos);
             _drawLine(pos);
         },
       ),
@@ -217,88 +276,41 @@ class _MapPageState extends State<MapPage> {
           subdomains: const ['mt0', 'mt1', 'mt2', 'mt3'],
           userAgentPackageName: 'com.example.oasis_frontend',
         ),
-        MarkerLayer(markers: _markers.toList()),
-        CurrentLocationLayer(),
+        CurrentLocationLayer(
+          style: LocationMarkerStyle(
+           headingSectorColor: Color.fromARGB(255, 65,105,225),
+            showAccuracyCircle: true,
+            accuracyCircleColor: Color.fromARGB(255,255,99,71)
+          ),
+        ),
+        SearchWidget(
+          onItemSelected: (String item) {
+            setState(() {
+              //TODO: Implement search thigns
+            });
+          },
+        ),
+        BottomActionBar(
+          onCenter: _centerCurrentLocation,
+          onClear: _clearMarker,
+          showClear: _canShowClear,
+        ),
+        if (_route.isNotEmpty) 
+          RouteLayerWidget(
+            linePoints: _route,
+          ),
+        MarkerLayer(markers: _destination.toList()),
         MarkerLayer(markers: _pois!),
-        Padding(
-          padding: const EdgeInsets.only(top: 40),
-          child: SearchAnchor(
-            builder: (BuildContext context, SearchController controller) {
-              return SearchBar(
-                controller: controller,
-                padding: const WidgetStatePropertyAll<EdgeInsets>(
-                  EdgeInsets.symmetric(horizontal: 16.0),
-                ),
-                onTap: () {
-                  controller.openView();
-                },
-                onChanged: (_) {
-                  controller.openView();
-                },
-                leading: const Icon(Icons.search),
-              );
-            },
-            suggestionsBuilder: (BuildContext context, SearchController controller) {
-              return List<ListTile>.generate(5, (int index) {
-                final String item = 'item $index';
-                return ListTile(
-                  title: Text(item),
-                  onTap: () {
-                    setState(() {
-                      controller.closeView(item);
-                    });
-                  },
-                );
-              });
-            }, 
-          ),
-        ),
-        Positioned(
-          left: 16,
-          bottom: 16,
-          child: TextButton(
-            style: TextButton.styleFrom(
-              foregroundColor: Colors.white,
-              backgroundColor: Colors.black,
-            ),
-            onPressed: _centerCurrentLocation, 
-            child: Text('Center')
-            ),
-        ),
-        if (_canShowClear)
-          Positioned(
-            left: 16,
-            bottom: 66,
-            child: 
-            TextButton(
-              style: TextButton.styleFrom(
-                foregroundColor: Colors.white,
-                backgroundColor: Colors.black,
-              ),
-              onPressed: _clearMarker, 
-              child: Text('Clear')
-            ),
-          ),
-        // SHOULD INVESTIGATE FURTHER
-        if (_linePoints.isNotEmpty)
-          PolylineLayer(polylines: 
-          [
-            Polyline(
-              points: _linePoints,
-              color: const Color.fromARGB(255, 1, 132, 255),
-              strokeWidth: 6,
-            ),
-          ]
-        ),
-        const RichAttributionWidget(
-          attributions: [
-            TextSourceAttribution(
-              'OpenStreetMap contributors',
-              // onTap: () =>
-              // launchUrl(Uri.parse('https://openstreetmap.org/copyright')),
-            ),
-          ],
-        ),
+
+
+        // const RichAttributionWidget(
+        //   alignment: AttributionAlignment.bottomLeft,
+        //   attributions: [
+        //     TextSourceAttribution(
+        //       'OpenStreetMap contributors',
+        //     ),
+        //   ],
+        // ),
       ],
     );
   }
