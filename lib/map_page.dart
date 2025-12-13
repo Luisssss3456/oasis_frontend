@@ -40,6 +40,8 @@ class _MapPageState extends State<MapPage> {
 
   List<Marker> _pois = [];
 
+  List<String> _poiNames = [];
+
 
   final Set<Marker> _destination = {};
 
@@ -52,6 +54,7 @@ class _MapPageState extends State<MapPage> {
     super.initState();
     _getCurrentPosition();
     _getPOIs();
+    _getPOINames();
   }
 
 // Location permitions
@@ -131,6 +134,14 @@ class _MapPageState extends State<MapPage> {
     }
   }
 
+  Future<void> _zoomIn() async{
+    mapController.move(mapController.camera.center, mapController.camera.zoom + 1);
+  }
+
+  Future<void> _zoomOut() async{
+    mapController.move(mapController.camera.center, mapController.camera.zoom - 1);
+  }
+
   Future<void> _getPOIs() async {
     setState(() {
       _isLoading = true;
@@ -187,7 +198,21 @@ class _MapPageState extends State<MapPage> {
     setState(() {
       _isLoading = false;
     });
-  } 
+  }
+
+  Future<void> _getPOINames() async {
+
+    _poiNames.clear();
+
+    final responseData = await fetchPOIs();
+    final features = responseData['features'] as List;
+    for (var feature in features) {
+      String pointName = feature["properties"]["name"];
+
+      _poiNames.add(pointName);
+
+    }
+  }
 
   @override
   void dispose() {
@@ -284,6 +309,7 @@ class _MapPageState extends State<MapPage> {
           ),
         ),
         SearchWidget(
+          itemList: _poiNames,
           onItemSelected: (String item) {
             setState(() {
               //TODO: Implement search thigns
@@ -294,6 +320,8 @@ class _MapPageState extends State<MapPage> {
           onCenter: _centerCurrentLocation,
           onClear: _clearMarker,
           showClear: _canShowClear,
+          onZoomIn: _zoomIn,
+          onZoomOut: _zoomOut,
         ),
         if (_route.isNotEmpty) 
           RouteLayerWidget(

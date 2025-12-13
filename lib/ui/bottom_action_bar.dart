@@ -5,13 +5,18 @@ class BottomActionBar extends StatelessWidget {
   final VoidCallback onCenter;
   final VoidCallback onClear;
   final bool showClear;
+  final VoidCallback onZoomIn;
+  final VoidCallback onZoomOut;
 
   const BottomActionBar({
     Key? key,
     required this.onCenter,
     required this.onClear,
     required this.showClear,
+    required this.onZoomIn,
+    required this.onZoomOut,
   }) : super(key: key);
+
 
   @override
   Widget build(BuildContext context) {
@@ -48,7 +53,29 @@ class BottomActionBar extends StatelessWidget {
                 child: const Text('Clear'),
               )
             else
-              const SizedBox.shrink(),
+              //const SizedBox.shrink(),
+              Opacity(
+                opacity: 0,
+                child: TextButton(
+                  onPressed: null,
+                  child: Text("")
+                )),
+            TextButton(
+              style: TextButton.styleFrom(
+                foregroundColor: Colors.white,
+                backgroundColor: const Color.fromARGB(255,70, 75, 87)
+              ),
+              onPressed: onZoomIn,
+              child: const Text('+'),
+            ),
+            TextButton(
+              style: TextButton.styleFrom(
+                foregroundColor: Colors.white,
+                backgroundColor: const Color.fromARGB(255,70, 75, 87)
+              ),
+              onPressed: onZoomOut,
+              child: const Text('-'),
+            ),
             TextButton(
               style: TextButton.styleFrom(
                 foregroundColor: Colors.white,
