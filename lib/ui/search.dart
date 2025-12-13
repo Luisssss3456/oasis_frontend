@@ -11,7 +11,7 @@ class SearchWidget extends StatelessWidget {
     required this.itemList,
   }) : super(key: key);
 
-  List<String> filterItems(query) {
+  List<String> filterItems(String query) {
     return itemList.where(
       (itemList) => itemList.toLowerCase().contains(query.toLowerCase()),
     ).toList();

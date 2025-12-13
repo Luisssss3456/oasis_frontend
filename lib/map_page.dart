@@ -18,6 +18,7 @@ import 'package:latlong2/latlong.dart';
 import 'package:flutter_map_location_marker/flutter_map_location_marker.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:flutter/material.dart';
+import 'package:oasis_frontend/ui/confirm_dialog.dart';
 import 'ui/route.dart';
 import 'ui/search.dart';
 import "ui/bottom_action_bar.dart";
@@ -318,12 +319,28 @@ class _MapPageState extends State<MapPage> {
           _currentPosition!.longitude
           ),
         initialZoom: 15,
-        onTap: (tapPosition, pos) {
+        onTap: (tapPosition, pos) async {
+          if (_route.isEmpty) {
             _destination.clear();
             _setDestination(pos);
             _drawLine(pos);
-        },
-      ),
+          }
+          else {
+            final confirm = await showDialog<bool>(
+              context: context,
+              builder: (_) => const ConfirmDialog(
+                title: "Change Route", 
+                content: "Do you want to change route?",
+                ),
+            );
+            if (confirm == true){
+              _destination.clear();
+              _setDestination(pos);
+              _drawLine(pos);
+          }
+        }
+      },
+    ),
 
       children: [
         TileLayer(

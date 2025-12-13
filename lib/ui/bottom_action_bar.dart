@@ -1,5 +1,6 @@
 // bottom_action_bar.dart
 import 'package:flutter/material.dart';
+import 'confirm_dialog.dart';
 
 class BottomActionBar extends StatelessWidget {
   final VoidCallback onCenter;
@@ -49,7 +50,18 @@ class BottomActionBar extends StatelessWidget {
                   foregroundColor: Colors.white,
                   backgroundColor: const Color.fromARGB(255,70, 75, 87)
                 ),
-                onPressed: onClear,
+                onPressed: () async {
+                  final confirm = await showDialog<bool>(
+                  context: context,
+                  builder: (_) => const ConfirmDialog(
+                    title: "Clear Route", 
+                    content: "Do you want to clear the route?",
+                    ),
+                  );
+                  if (confirm == true){
+                    onClear();
+                  }
+                },
                 child: const Text('Clear'),
               )
             else
