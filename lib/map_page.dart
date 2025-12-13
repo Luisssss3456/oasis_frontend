@@ -13,6 +13,7 @@ import 'dart:async';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
+import 'package:http/http.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:flutter_map_location_marker/flutter_map_location_marker.dart';
 import 'package:geolocator/geolocator.dart';
@@ -85,6 +86,14 @@ class _MapPageState extends State<MapPage> {
     return true;
   }
 
+  Future<void> _zoomIn() async{
+    mapController.move(mapController.camera.center, mapController.camera.zoom + 1);
+  }
+
+  Future<void> _zoomOut() async{
+    mapController.move(mapController.camera.center, mapController.camera.zoom - 1);
+  }
+
 
   Future<void> _getCurrentPosition() async {
 
@@ -132,14 +141,6 @@ class _MapPageState extends State<MapPage> {
           content: Text("Cannot find user location")
         );
     }
-  }
-
-  Future<void> _zoomIn() async{
-    mapController.move(mapController.camera.center, mapController.camera.zoom + 1);
-  }
-
-  Future<void> _zoomOut() async{
-    mapController.move(mapController.camera.center, mapController.camera.zoom - 1);
   }
 
   Future<void> _getPOIs() async {
@@ -221,6 +222,34 @@ class _MapPageState extends State<MapPage> {
     super.dispose();
   }
 
+  Future<LatLng> _getPOICoords(String pointName) async {
+    
+    final responseData = await fetchPOIs();
+
+    final features = responseData['features'] as List;
+
+    for (var feature in features) {
+      if (feature["properties"]["name"] == pointName) {
+        double lat = feature["geometry"]["coordinates"][0];
+        double long = feature["geometry"]["coordinates"][1];
+        return LatLng(lat, long);
+      }
+    }
+    CupertinoAlertDialog(
+      title: Text("Error"),
+      content: Text("Cannot find selected location")
+      );
+    return LatLng(0, 0);
+  }
+
+  Future<void> _drawSelectedItem(String pointName) async {
+    _destination.clear();
+    LatLng points = await _getPOICoords(pointName);
+
+    _setDestination(points);
+    _drawLine(points);
+  }
+
   void _setDestination(LatLng pos) {
     setState((){
       _destination.add(
@@ -244,6 +273,8 @@ class _MapPageState extends State<MapPage> {
 
     _route.clear();
     final responseData = await fetchRoute(LatLng(_currentPosition!.latitude, _currentPosition!.longitude), pos);
+  
+
     final coordinates = responseData["route"]["points"]["coordinates"];     
 
     List<LatLng> polyline = coordinates.map<LatLng>((pair) {
@@ -310,11 +341,12 @@ class _MapPageState extends State<MapPage> {
         ),
         SearchWidget(
           itemList: _poiNames,
-          onItemSelected: (String item) {
-            setState(() {
-              //TODO: Implement search thigns
-            });
-          },
+          // onItemSelected: (String item) {
+          //   setState(() {
+          //     //TODO: Implement search thigns
+          //   });
+          // },
+          onItemSelected: _drawSelectedItem
         ),
         BottomActionBar(
           onCenter: _centerCurrentLocation,
