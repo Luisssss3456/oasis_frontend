@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'confirm_dialog.dart';
 
 class RightPanel extends StatelessWidget{
   final VoidCallback onZoomIn;
