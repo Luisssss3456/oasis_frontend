@@ -25,22 +25,24 @@ class RightPanel extends StatelessWidget{
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          TextButton(
+          IconButton(
             style: TextButton.styleFrom(
             foregroundColor: Colors.white,
             backgroundColor: const Color.fromARGB(255,70, 75, 87)
           ),
             onPressed: onZoomIn,
-            child: const Text('+'),
+            icon: const Icon(Icons.add),
+            tooltip: "Zoom in",
         ),
-          const SizedBox(height: 12),
-          TextButton(
+          const SizedBox(height: 7),
+          IconButton(
             style: TextButton.styleFrom(
             foregroundColor: Colors.white,
             backgroundColor: const Color.fromARGB(255,70, 75, 87)
           ),
           onPressed: onZoomOut,
-          child: const Text('-'),
+          icon: const Icon(Icons.remove),
+          tooltip: "Zoom out",
         ),
       ],
       ),
