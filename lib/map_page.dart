@@ -19,6 +19,7 @@ import 'package:flutter_map_location_marker/flutter_map_location_marker.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:flutter/material.dart';
 import 'package:oasis_frontend/ui/confirm_dialog.dart';
+import 'package:oasis_frontend/ui/right_panel.dart';
 import 'ui/route.dart';
 import 'ui/search.dart';
 import "ui/bottom_action_bar.dart";
@@ -356,6 +357,8 @@ class _MapPageState extends State<MapPage> {
             accuracyCircleColor: Color.fromARGB(255,255,99,71)
           ),
         ),
+        MarkerLayer(markers: _destination.toList()),
+        MarkerLayer(markers: _pois!),
         SearchWidget(
           itemList: _poiNames,
           // onItemSelected: (String item) {
@@ -365,19 +368,20 @@ class _MapPageState extends State<MapPage> {
           // },
           onItemSelected: _drawSelectedItem
         ),
+        RightPanel(
+          onZoomIn: _zoomIn, 
+          onZoomOut: _zoomOut
+        ),
         BottomActionBar(
           onCenter: _centerCurrentLocation,
           onClear: _clearMarker,
           showClear: _canShowClear,
-          onZoomIn: _zoomIn,
-          onZoomOut: _zoomOut,
         ),
         if (_route.isNotEmpty) 
           RouteLayerWidget(
             linePoints: _route,
           ),
-        MarkerLayer(markers: _destination.toList()),
-        MarkerLayer(markers: _pois!),
+
 
 
         // const RichAttributionWidget(

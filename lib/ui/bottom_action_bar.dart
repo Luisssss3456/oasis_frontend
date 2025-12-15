@@ -6,16 +6,12 @@ class BottomActionBar extends StatelessWidget {
   final VoidCallback onCenter;
   final VoidCallback onClear;
   final bool showClear;
-  final VoidCallback onZoomIn;
-  final VoidCallback onZoomOut;
 
   const BottomActionBar({
     Key? key,
     required this.onCenter,
     required this.onClear,
     required this.showClear,
-    required this.onZoomIn,
-    required this.onZoomOut,
   }) : super(key: key);
 
 
@@ -45,7 +41,7 @@ class BottomActionBar extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             if (showClear)
-              TextButton(
+              IconButton(
                 style: TextButton.styleFrom(
                   foregroundColor: Colors.white,
                   backgroundColor: const Color.fromARGB(255,70, 75, 87)
@@ -62,7 +58,9 @@ class BottomActionBar extends StatelessWidget {
                     onClear();
                   }
                 },
-                child: const Text('Clear'),
+                icon: const Icon(Icons.close),
+                tooltip: 'Clear Route',
+                //child: const Text('Clear'),
               )
             else
               //const SizedBox.shrink(),
@@ -72,29 +70,14 @@ class BottomActionBar extends StatelessWidget {
                   onPressed: null,
                   child: Text("")
                 )),
-            TextButton(
-              style: TextButton.styleFrom(
-                foregroundColor: Colors.white,
-                backgroundColor: const Color.fromARGB(255,70, 75, 87)
-              ),
-              onPressed: onZoomIn,
-              child: const Text('+'),
-            ),
-            TextButton(
-              style: TextButton.styleFrom(
-                foregroundColor: Colors.white,
-                backgroundColor: const Color.fromARGB(255,70, 75, 87)
-              ),
-              onPressed: onZoomOut,
-              child: const Text('-'),
-            ),
-            TextButton(
+            IconButton(
               style: TextButton.styleFrom(
                 foregroundColor: Colors.white,
                 backgroundColor: const Color.fromARGB(255,70, 75, 87)
               ),
               onPressed: onCenter,
-              child: const Text('Center'),
+              icon: const Icon(Icons.explore),
+              tooltip: "Center to current location",
             ),
           ],
         ),
