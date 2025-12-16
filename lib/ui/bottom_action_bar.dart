@@ -6,13 +6,18 @@ class BottomActionBar extends StatelessWidget {
   final VoidCallback onCenter;
   final VoidCallback onClear;
   final bool showClear;
+  final double shadeValue;
+  final double ndviValue;
 
   const BottomActionBar({
     Key? key,
     required this.onCenter,
     required this.onClear,
     required this.showClear,
+    required this.shadeValue,
+    required this.ndviValue,
   }) : super(key: key);
+
 
 
   @override
@@ -70,6 +75,50 @@ class BottomActionBar extends StatelessWidget {
                   onPressed: null,
                   child: Text("")
                 )),
+            if (showClear)
+              RichText(
+                text: TextSpan(
+                  //text: 'Shade: $shadeValue',
+                  style: const TextStyle(
+                    color: Colors.black,
+                    fontWeight: FontWeight.bold,
+                    fontSize: 25,
+                    ),
+                  children: [
+                    WidgetSpan(
+                      child: Icon(Icons.person, size: 35),
+                      ),
+                  ],
+                  text: '$shadeValue',
+                )
+              )
+            else 
+              Opacity(
+                opacity: 0,
+                child: Text("")
+                ),
+            if (showClear)
+              RichText(
+                text: TextSpan(
+                  //text: 'Shade: $shadeValue',
+                  style: const TextStyle(
+                    color: Colors.black,
+                    fontWeight: FontWeight.bold,
+                    fontSize: 25,
+                    ),
+                  children: [
+                    WidgetSpan(
+                      child: Icon(Icons.park, size: 35),
+                      ),
+                  ],
+                  text: '$ndviValue',
+                )
+              )
+            else 
+              Opacity(
+                opacity: 0,
+                child: Text("")
+                ),
             IconButton(
               style: TextButton.styleFrom(
                 foregroundColor: Colors.white,

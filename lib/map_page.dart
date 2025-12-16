@@ -49,6 +49,9 @@ class _MapPageState extends State<MapPage> {
   bool _isLoading = false;
   bool _canShowClear = false;
 
+  double _shadeValue = 0;
+  double _ndviValue = 0;
+
   @override
   void initState() {
     // TODO: implement initState
@@ -290,6 +293,12 @@ class _MapPageState extends State<MapPage> {
     });
   }
 
+
+  Future<void> _calcShade() async {
+    _shadeValue = 15;
+    _ndviValue = 27;
+  }
+
   void _clearMarker() {
     setState(() {
       _route.clear();
@@ -323,6 +332,7 @@ class _MapPageState extends State<MapPage> {
             _destination.clear();
             _setDestination(pos);
             _drawLine(pos);
+            _calcShade();
           }
           else {
             final confirm = await showDialog<bool>(
@@ -336,6 +346,7 @@ class _MapPageState extends State<MapPage> {
               _destination.clear();
               _setDestination(pos);
               _drawLine(pos);
+              _calcShade();
           }
         }
       },
@@ -369,6 +380,8 @@ class _MapPageState extends State<MapPage> {
           onCenter: _centerCurrentLocation,
           onClear: _clearMarker,
           showClear: _canShowClear,
+          shadeValue: _shadeValue,
+          ndviValue: _ndviValue,
         ),
         if (_route.isNotEmpty) 
           RouteLayerWidget(
