@@ -52,6 +52,9 @@ class _MapPageState extends State<MapPage> {
   double _shadeValue = 0;
   double _ndviValue = 0;
 
+  List<double> _shadeSegments = [];
+  List<double> _ndviSegments = [];
+
   @override
   void initState() {
     // TODO: implement initState
@@ -296,6 +299,9 @@ class _MapPageState extends State<MapPage> {
     _shadeValue = responseData["route"]["shade"];
     _ndviValue = responseData["route"]["ndvi"];
 
+    //  _shadeSegments = responseData["route"]["shade_segment_list"] as List<double>;
+    //  _ndviSegments = responseData["route"]["ndvi_segment_list"] as List<double>;
+
     setState(() {
       _isLoading = false;
     });
@@ -386,7 +392,10 @@ class _MapPageState extends State<MapPage> {
         if (_route.isNotEmpty) 
           RouteLayerWidget(
             linePoints: _route,
-            shadeValue: [],
+            // shadeSegments: _shadeSegments,
+            // ndviSegments: _ndviSegments,
+            shadeSegments: [],
+            ndviSegments: [],
           ),
       ],
     );
