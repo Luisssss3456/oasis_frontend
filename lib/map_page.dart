@@ -288,15 +288,12 @@ class _MapPageState extends State<MapPage> {
 
     _route = polyline;
 
+    _shadeValue = responseData["route"]["shade"];
+    _ndviValue = responseData["route"]["ndvi"];
+
     setState(() {
       _isLoading = false;
     });
-  }
-
-
-  Future<void> _calcShade() async {
-    _shadeValue = 15;
-    _ndviValue = 27;
   }
 
   void _clearMarker() {
@@ -310,7 +307,7 @@ class _MapPageState extends State<MapPage> {
   @override
   Widget build(BuildContext context) {
 
-    if(_currentPosition == null || _pois.isEmpty) {
+    if(_currentPosition == null) {
       return const Center(child: CircularProgressIndicator());
     }
 
@@ -332,7 +329,6 @@ class _MapPageState extends State<MapPage> {
             _destination.clear();
             _setDestination(pos);
             _drawLine(pos);
-            _calcShade();
           }
           else {
             final confirm = await showDialog<bool>(
@@ -346,7 +342,6 @@ class _MapPageState extends State<MapPage> {
               _destination.clear();
               _setDestination(pos);
               _drawLine(pos);
-              _calcShade();
           }
         }
       },
@@ -386,18 +381,8 @@ class _MapPageState extends State<MapPage> {
         if (_route.isNotEmpty) 
           RouteLayerWidget(
             linePoints: _route,
+            shadeValue: [],
           ),
-
-
-
-        // const RichAttributionWidget(
-        //   alignment: AttributionAlignment.bottomLeft,
-        //   attributions: [
-        //     TextSourceAttribution(
-        //       'OpenStreetMap contributors',
-        //     ),
-        //   ],
-        // ),
       ],
     );
   }

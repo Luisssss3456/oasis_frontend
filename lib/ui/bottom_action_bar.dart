@@ -89,7 +89,7 @@ class BottomActionBar extends StatelessWidget {
                       child: Icon(Icons.person, size: 35),
                       ),
                   ],
-                  text: '$shadeValue',
+                  text: '${(shadeValue * 100).toStringAsFixed(1)}%',
                 )
               )
             else 
@@ -111,7 +111,7 @@ class BottomActionBar extends StatelessWidget {
                       child: Icon(Icons.park, size: 35),
                       ),
                   ],
-                  text: '$ndviValue',
+                  text: '${(ndviValue * 100).toStringAsFixed(1)}%',
                 )
               )
             else 
