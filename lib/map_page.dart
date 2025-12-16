@@ -55,6 +55,8 @@ class _MapPageState extends State<MapPage> {
   List<dynamic> _shadeSegments = [];
   List<dynamic> _ndviSegments = [];
 
+  List<Color> _colorSet = [];
+
   @override
   void initState() {
     // TODO: implement initState
@@ -302,9 +304,51 @@ class _MapPageState extends State<MapPage> {
      _shadeSegments = responseData["route"]["shade_segment_list"] as List<dynamic>;
      _ndviSegments = responseData["route"]["ndvi_segment_list"] as List<dynamic>;
 
+     setColors();
+
     setState(() {
       _isLoading = false;
     });
+  }
+
+  void setColors() {
+
+    _colorSet.clear();
+
+    Color color;
+
+    for (var i = 0; i < _route.length - 1; i++){
+      if(_shadeSegments[i] > 0.66 && _ndviSegments[i] > 0.66){
+        color = Color.fromRGBO(90, 77, 164, 255);
+      }
+      else if(_shadeSegments[i] > 0.66 && _ndviSegments[i] > 0.33){
+        color = Color.fromRGBO(205, 154, 204, 255);
+      }
+      else if(_shadeSegments[i] > 0.66 && _ndviSegments[i] <= 0.33){
+        color = Color.fromRGBO(240, 4, 127, 255);
+      }
+      else if(_shadeSegments[i] > 0.33 && _ndviSegments[i] > 0.66){
+        color = Color.fromRGBO(154, 201, 213, 255);
+      }
+      else if(_shadeSegments[i] > 0.33 && _ndviSegments[i] > 0.33){
+        color = Color.fromRGBO(230, 230, 230, 255);
+      }
+      else if(_shadeSegments[i] > 0.33 && _ndviSegments[i] <= 0.33){
+        color = Color.fromRGBO(254, 154, 166, 255);
+      }
+      else if(_shadeSegments[i] <= 0.33 && _ndviSegments[i] > 0.66){
+        color = Color.fromRGBO(0, 136, 55, 255);
+      }
+      else if(_shadeSegments[i] <= 0.33 && _ndviSegments[i] > 0.33){
+        color = Color.fromRGBO(204, 232, 139, 255);
+      }
+      else{
+        color = Color.fromRGBO(243, 115, 0, 255);
+      }
+
+      _colorSet.add(color);
+      
+    }
   }
 
   void _clearMarker() {
@@ -392,10 +436,7 @@ class _MapPageState extends State<MapPage> {
         if (_route.isNotEmpty) 
           RouteLayerWidget(
             linePoints: _route,
-            // shadeSegments: _shadeSegments,
-            // ndviSegments: _ndviSegments,
-            shadeSegments: [],
-            ndviSegments: [],
+            colors: _colorSet,
           ),
       ],
     );
