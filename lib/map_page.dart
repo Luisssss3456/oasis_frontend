@@ -52,8 +52,8 @@ class _MapPageState extends State<MapPage> {
   double _shadeValue = 0;
   double _ndviValue = 0;
 
-  List<double> _shadeSegments = [];
-  List<double> _ndviSegments = [];
+  List<dynamic> _shadeSegments = [];
+  List<dynamic> _ndviSegments = [];
 
   @override
   void initState() {
@@ -299,8 +299,8 @@ class _MapPageState extends State<MapPage> {
     _shadeValue = responseData["route"]["shade"];
     _ndviValue = responseData["route"]["ndvi"];
 
-    //  _shadeSegments = responseData["route"]["shade_segment_list"] as List<double>;
-    //  _ndviSegments = responseData["route"]["ndvi_segment_list"] as List<double>;
+     _shadeSegments = responseData["route"]["shade_segment_list"] as List<dynamic>;
+     _ndviSegments = responseData["route"]["ndvi_segment_list"] as List<dynamic>;
 
     setState(() {
       _isLoading = false;
