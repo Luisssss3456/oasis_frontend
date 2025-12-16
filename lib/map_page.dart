@@ -387,7 +387,6 @@ class _MapPageState extends State<MapPage> {
           ),
         initialZoom: 15,
         onTap: (tapPosition, pos) async {
-          print("POS is: $pos.runtimeType");
           if (_route.isEmpty) {
             _destination.clear();
             _setDestination(pos);
