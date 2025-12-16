@@ -9,6 +9,7 @@
 // https://docs.fleaflet.dev/layers/marker-layer
 
 import 'dart:async';
+import 'dart:collection';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -40,6 +41,7 @@ class _MapPageState extends State<MapPage> {
 
 
   List<Marker> _pois = [];
+  Map<String, List<dynamic>> _poiCoords = {};
 
   List<String> _poiNames = [];
 
@@ -63,7 +65,7 @@ class _MapPageState extends State<MapPage> {
     super.initState();
     _getCurrentPosition();
     _getPOIs();
-    _getPOINames();
+    //_getPOINames();
   }
 
 // Location permitions
@@ -161,9 +163,14 @@ class _MapPageState extends State<MapPage> {
     final responseData = await fetchPOIs();
     final features = responseData['features'] as List;
     for (var feature in features) {
-      //String name = feature["properties"]["name"];
+
+      String name = feature["properties"]["name"];
       double lat = feature["geometry"]["coordinates"][0];
       double long = feature["geometry"]["coordinates"][1];
+
+      _poiNames.add(name);
+
+      _poiCoords.addAll({name: [lat, long]});
 
       final IconData markerIcon;
       final MaterialColor markerColor;
@@ -209,20 +216,6 @@ class _MapPageState extends State<MapPage> {
     });
   }
 
-  Future<void> _getPOINames() async {
-
-    _poiNames.clear();
-
-    final responseData = await fetchPOIs();
-    final features = responseData['features'] as List;
-    for (var feature in features) {
-      String pointName = feature["properties"]["name"];
-
-      _poiNames.add(pointName);
-
-    }
-  }
-
   @override
   void dispose() {
     // TODO: implement dispose
@@ -230,30 +223,19 @@ class _MapPageState extends State<MapPage> {
     super.dispose();
   }
 
-  Future<LatLng> _getPOICoords(String pointName) async {
-    
-    final responseData = await fetchPOIs();
+  LatLng _getPOICoords(String pointName) {
 
-    final features = responseData['features'] as List;
-
-    for (var feature in features) {
-      if (feature["properties"]["name"] == pointName) {
-        double lat = feature["geometry"]["coordinates"][0];
-        double long = feature["geometry"]["coordinates"][1];
-        return LatLng(lat, long);
-      }
+    if (_poiCoords.containsKey(pointName)) {
+      return LatLng(_poiCoords[pointName]![0], _poiCoords[pointName]![1]);
     }
-    CupertinoAlertDialog(
-      title: Text("Error"),
-      content: Text("Cannot find selected location")
-      );
+
     return LatLng(0, 0);
   }
 
   Future<void> _drawSelectedItem(String pointName) async {
+    // El auxilio mutuo sin funciona
     _destination.clear();
-    LatLng points = await _getPOICoords(pointName);
-
+    LatLng points = _getPOICoords(pointName);
     _setDestination(points);
     _drawLine(points);
   }
@@ -263,10 +245,7 @@ class _MapPageState extends State<MapPage> {
       _destination.add(
         Marker(
           point: pos, 
-          // child: Icon(
-          //   IconData(0xe3ac, fontFamily: 'MaterialIcons'), size: 40, color: Color.fromARGB(255,255,99,71),
-          //   shadows: [Shadow(color: Colors.black, blurRadius: 15.0)]
-          //   ),
+
           child: Icon(
             Icons.place,
             size: 36,
@@ -288,13 +267,24 @@ class _MapPageState extends State<MapPage> {
     final responseData = await fetchRoute(LatLng(_currentPosition!.latitude, _currentPosition!.longitude), pos);
   
 
-    final coordinates = responseData["route"]["points"]["coordinates"];     
+    final coordinates;
 
-    List<LatLng> polyline = coordinates.map<LatLng>((pair) {
-      double lng = pair[0];
-      double lat = pair[1];
-      return LatLng(lat, lng);
-    }).toList();
+    try {
+        coordinates = responseData["route"]["points"]["coordinates"];
+    } catch(e) {
+      _clearMarker();
+      _routeAlert();
+      setState(() {
+        _isLoading = false;
+      });
+      return;
+    }
+
+      List <LatLng> polyline = coordinates.map<LatLng>((pair) {
+        double lng = pair[0].toDouble();
+        double lat = pair[1].toDouble();
+        return LatLng(lat, lng);
+      }).toList();
 
     _route = polyline;
 
@@ -359,6 +349,23 @@ class _MapPageState extends State<MapPage> {
     });
   }
 
+  Future<void> _routeAlert() async {
+    if (!mounted) return;
+    await showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text("Error"),
+        content: Text("Cannot process route"),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text("Exit")
+          )
+        ]
+      )
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
 
@@ -380,6 +387,7 @@ class _MapPageState extends State<MapPage> {
           ),
         initialZoom: 15,
         onTap: (tapPosition, pos) async {
+          print("POS is: $pos.runtimeType");
           if (_route.isEmpty) {
             _destination.clear();
             _setDestination(pos);
@@ -417,10 +425,10 @@ class _MapPageState extends State<MapPage> {
           ),
         ),
         MarkerLayer(markers: _destination.toList()),
-        MarkerLayer(markers: _pois!),
+        MarkerLayer(markers: _pois),
         SearchWidget(
           itemList: _poiNames,
-          onItemSelected: _drawSelectedItem
+          onItemSelected: _drawSelectedItem,
         ),
         RightPanel(
           onZoomIn: _zoomIn, 
