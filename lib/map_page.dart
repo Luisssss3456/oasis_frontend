@@ -258,9 +258,14 @@ class _MapPageState extends State<MapPage> {
       _destination.add(
         Marker(
           point: pos, 
+          // child: Icon(
+          //   IconData(0xe3ac, fontFamily: 'MaterialIcons'), size: 40, color: Color.fromARGB(255,255,99,71),
+          //   shadows: [Shadow(color: Colors.black, blurRadius: 15.0)]
+          //   ),
           child: Icon(
-            IconData(0xe3ac, fontFamily: 'MaterialIcons'), size: 40, color: Color.fromARGB(255,255,99,71),
-            shadows: [Shadow(color: Colors.black, blurRadius: 15.0)]
+            Icons.place,
+            size: 36,
+            color: const Color.fromARGB(255, 11, 78, 13)
             ),
         ),
       );
